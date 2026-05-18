@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Falcon Exchange - سوق الخدمات الرقمية بـ Pi</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root{--pi-purple:#6c35de;--pi-dark:#4a1fa8;--pi-light:#9b6ef3;--pi-gold:#f5a623;--pi-green:#27ae60;--pi-cyan:#00b4d8;--bg:#080c14;--card:#0f1520;--card2:#162030;--text:#e0f0ff;--muted:#6a8aaa;--border:#1a2a40;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+    nav{background:var(--card);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;}
+    .nav-logo{font-size:1.3rem;font-weight:900;color:var(--pi-cyan);display:flex;align-items:center;gap:8px;}
+    .btn{background:var(--pi-purple);color:#fff;border:none;padding:8px 18px;border-radius:25px;font-family:'Cairo',sans-serif;font-weight:700;cursor:pointer;}
+    .btn-cyan{background:var(--pi-cyan);color:#000;border:none;padding:8px 18px;border-radius:25px;font-family:'Cairo',sans-serif;font-weight:700;cursor:pointer;}
+    .hero{background:linear-gradient(135deg,#080c1a,var(--bg));padding:40px 20px;text-align:center;}
+    .hero h1{font-size:2rem;font-weight:900;margin-bottom:8px;}
+    .hero h1 span{color:var(--pi-cyan);}
+    .hero p{color:var(--muted);margin-bottom:20px;}
+    .search-row{display:flex;gap:10px;max-width:700px;margin:0 auto;flex-wrap:wrap;}
+    .search-row input{flex:1;min-width:180px;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:25px;font-family:'Cairo',sans-serif;outline:none;}
+    .search-row select{background:var(--card2);border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:25px;font-family:'Cairo',sans-serif;outline:none;}
+    .search-row button{background:var(--pi-cyan);color:#000;border:none;padding:12px 22px;border-radius:25px;font-family:'Cairo',sans-serif;font-weight:700;cursor:pointer;}
+    .stats-bar{display:flex;justify-content:center;gap:24px;padding:14px;background:var(--card);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+    .stat{text-align:center;}
+    .stat-num{font-size:1.3rem;font-weight:900;color:var(--pi-cyan);}
+    .stat-label{font-size:.75rem;color:var(--muted);}
+    .tabs{display:flex;border-bottom:1px solid var(--border);padding:0 20px;overflow-x:auto;}
+    .tab{padding:14px 20px;cursor:pointer;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap;font-size:.9rem;}
+    .tab.active{color:var(--pi-cyan);border-bottom-color:var(--pi-cyan);}
+    .section{padding:20px;max-width:1200px;margin:0 auto;}
+    /* CATS */
+    .cats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:24px;}
+    .cat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:.2s;}
+    .cat-card:hover{border-color:var(--pi-cyan);}
+    .cat-icon{font-size:2rem;margin-bottom:6px;}
+    .cat-name{font-size:.88rem;font-weight:700;}
+    .cat-count{font-size:.75rem;color:var(--muted);}
+    /* SERVICE CARDS */
+    .services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+    .service-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:.2s;cursor:pointer;}
+    .service-card:hover{border-color:var(--pi-cyan);transform:translateY(-2px);}
+    .service-thumb{height:150px;background:linear-gradient(135deg,var(--pi-dark),var(--card2));display:flex;align-items:center;justify-content:center;font-size:4rem;position:relative;}
+    .service-level{position:absolute;top:8px;right:8px;background:rgba(0,180,216,.2);color:var(--pi-cyan);border:1px solid var(--pi-cyan);padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:700;}
+    .service-body{padding:14px;}
+    .service-title{font-weight:700;margin-bottom:6px;font-size:.95rem;line-height:1.4;}
+    .seller-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+    .seller-avatar{width:28px;height:28px;border-radius:50%;background:var(--pi-purple);display:flex;align-items:center;justify-content:center;font-size:.8rem;}
+    .seller-name{font-size:.82rem;color:var(--muted);}
+    .seller-level{font-size:.72rem;background:var(--pi-gold);color:#000;padding:1px 6px;border-radius:8px;font-weight:700;}
+    .service-rating{display:flex;align-items:center;gap:4px;color:var(--pi-gold);font-size:.82rem;margin-bottom:10px;}
+    .service-price{display:flex;justify-content:space-between;align-items:center;}
+    .price-from{font-size:.75rem;color:var(--muted);}
+    .price-val{font-size:1.1rem;font-weight:900;color:var(--pi-gold);}
+    .order-btn{background:var(--pi-cyan);color:#000;border:none;padding:7px 16px;border-radius:10px;font-family:'Cairo',sans-serif;font-weight:700;cursor:pointer;font-size:.85rem;}
+    /* SELL FORM */
+    .sell-form{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:650px;margin:0 auto;}
+    .form-group{margin-bottom:16px;}
+    .form-group label{display:block;font-weight:600;margin-bottom:6px;color:var(--muted);font-size:.9rem;}
+    .form-group input,.form-group textarea,.form-group select{width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:10px;font-family:'Cairo',sans-serif;font-size:.95rem;outline:none;}
+    .form-group textarea{height:90px;resize:vertical;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    /* PACKAGES */
+    .packages-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+    .pkg{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+    .pkg-name{font-weight:700;margin-bottom:4px;font-size:.9rem;}
+    .pkg-price{color:var(--pi-gold);font-weight:900;font-size:1.1rem;}
+    .pkg-days{color:var(--muted);font-size:.8rem;}
+    /* MODAL */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:center;justify-content:center;}
+    .modal-overlay.open{display:flex;}
+    .modal{background:var(--card);border-radius:20px;width:90%;max-width:560px;padding:24px;max-height:90vh;overflow-y:auto;}
+    .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--pi-green);color:#fff;padding:12px 24px;border-radius:30px;font-weight:700;z-index:999;display:none;}
+    @media(max-width:600px){.services-grid{grid-template-columns:1fr;}.packages-row{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}.cats-grid{grid-template-columns:repeat(3,1fr);}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo"><span>🦅</span> Falcon Exchange</div>
+  <div style="display:flex;gap:10px;">
+    <button class="btn-cyan" onclick="switchTab('sell',null)">+ بيع خدمة</button>
+    <button class="btn" onclick="loginWithPi()">دخول بـ Pi</button>
+  </div>
+</nav>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-num">+18,000</div><div class="stat-label">خدمة معروضة</div></div>
+  <div class="stat"><div class="stat-num">+6,500</div><div class="stat-label">مقدم خدمة</div></div>
+  <div class="stat"><div class="stat-num">5%</div><div class="stat-label">عمولة المنصة</div></div>
+  <div class="stat"><div class="stat-num">24 ساعة</div><div class="stat-label">متوسط التسليم</div></div>
+</div>
+
+<div class="hero">
+  <h1>سوق الخدمات الرقمية بـ <span>Pi</span> 🦅</h1>
+  <p>استأجر أفضل المحترفين أو بيع مهاراتك بعملة Pi</p>
+  <div class="search-row">
+    <input type="text" placeholder="ابحث عن خدمة..." id="searchInput" oninput="filterServices()" />
+    <select id="catSelect" onchange="filterServices()">
+      <option value="all">كل الفئات</option>
+      <option value="تصميم">تصميم</option>
+      <option value="برمجة">برمجة</option>
+      <option value="كتابة">كتابة</option>
+      <option value="تسويق">تسويق</option>
+      <option value="فيديو">فيديو</option>
+    </select>
+    <button onclick="filterServices()">بحث</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('browse',this)">استكشف الخدمات</div>
+  <div class="tab" onclick="switchTab('sell',this)">بيع خدمة</div>
+  <div class="tab" onclick="switchTab('orders',this)">طلباتي</div>
+</div>
+
+<!-- BROWSE TAB -->
+<div id="browseTab" class="section">
+  <div style="font-size:1rem;font-weight:700;margin-bottom:12px;">📂 تصفح حسب الفئة</div>
+  <div class="cats-grid">
+    <div class="cat-card" onclick="filterCat('تصميم')"><div class="cat-icon">🎨</div><div class="cat-name">تصميم</div><div class="cat-count">3,240 خدمة</div></div>
+    <div class="cat-card" onclick="filterCat('برمجة')"><div class="cat-icon">💻</div><div class="cat-name">برمجة</div><div class="cat-count">4,120 خدمة</div></div>
+    <div class="cat-card" onclick="filterCat('كتابة')"><div class="cat-icon">✍️</div><div class="cat-name">كتابة</div><div class="cat-count">2,890 خدمة</div></div>
+    <div class="cat-card" onclick="filterCat('تسويق')"><div class="cat-icon">📣</div><div class="cat-name">تسويق</div><div class="cat-count">1,560 خدمة</div></div>
+    <div class="cat-card" onclick="filterCat('فيديو')"><div class="cat-icon">🎬</div><div class="cat-name">فيديو</div><div class="cat-count">980 خدمة</div></div>
+    <div class="cat-card" onclick="filterCat('صوت')"><div class="cat-icon">🎙️</div><div class="cat-name">صوت</div><div class="cat-count">640 خدمة</div></div>
+  </div>
+  <div style="font-size:1rem;font-weight:700;margin-bottom:12px;">⭐ الخدمات المميزة</div>
+  <div class="services-grid" id="servicesGrid"></div>
+</div>
+
+<!-- SELL TAB -->
+<div id="sellTab" class="section" style="display:none;">
+  <div class="sell-form">
+    <div style="font-size:1.2rem;font-weight:900;margin-bottom:6px;">🚀 أضف خدمتك</div>
+    <div style="color:var(--muted);font-size:.9rem;margin-bottom:20px;">بيع مهاراتك واكسب 95% من قيمة كل طلب</div>
+    <div class="form-group"><label>عنوان الخدمة</label><input type="text" id="sTitle" placeholder="مثال: سأصمم لك شعاراً احترافياً" /></div>
+    <div class="form-group"><label>وصف الخدمة</label><textarea id="sDesc" placeholder="اشرح ما ستقدمه بالتفصيل..."></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label>الفئة</label><select id="sCat"><option>تصميم</option><option>برمجة</option><option>كتابة</option><option>تسويق</option><option>فيديو</option></select></div>
+      <div class="form-group"><label>مدة التسليم</label><select id="sDays"><option>24 ساعة</option><option>3 أيام</option><option>7 أيام</option><option>14 يوم</option></select></div>
+    </div>
+    <div style="font-weight:600;margin-bottom:10px;color:var(--muted);font-size:.9rem;">حزم الأسعار</div>
+    <div class="packages-row">
+      <div class="pkg"><div class="pkg-name">أساسي</div><input type="number" placeholder="سعر π" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:8px;width:100%;font-family:Cairo,sans-serif;text-align:center;" /></div>
+      <div class="pkg"><div class="pkg-name">قياسي</div><input type="number" placeholder="سعر π" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:8px;width:100%;font-family:Cairo,sans-serif;text-align:center;" /></div>
+      <div class="pkg"><div class="pkg-name">مميز</div><input type="number" placeholder="سعر π" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:8px;width:100%;font-family:Cairo,sans-serif;text-align:center;" /></div>
+    </div>
+    <button class="btn-cyan" style="width:100%;padding:13px;font-size:1rem;" onclick="publishService()">🚀 نشر الخدمة</button>
+  </div>
+</div>
+
+<!-- ORDERS TAB -->
+<div id="ordersTab" class="section" style="display:none;">
+  <div style="text-align:center;padding:40px;color:var(--muted);">
+    <div style="font-size:3rem;margin-bottom:10px;">📋</div>
+    <div>سجّل دخولك لعرض طلباتك</div>
+    <button class="btn" style="margin-top:16px;" onclick="loginWithPi()">دخول بـ Pi</button>
+  </div>
+</div>
+
+<!-- SERVICE MODAL -->
+<div class="modal-overlay" id="serviceModal">
+  <div class="modal">
+    <div style="height:160px;background:linear-gradient(135deg,var(--pi-dark),var(--card2));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:5rem;margin-bottom:16px;" id="modalIcon">🎨</div>
+    <div style="font-size:1.2rem;font-weight:900;margin-bottom:8px;" id="modalTitle"></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;" id="modalSeller"></div>
+    <div style="color:var(--muted);line-height:1.7;margin-bottom:16px;" id="modalDesc"></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;" id="modalPackages"></div>
+    <div style="display:flex;gap:10px;">
+      <button style="background:var(--card2);border:1px solid var(--border);color:var(--text);padding:12px 20px;border-radius:12px;cursor:pointer;font-family:Cairo,sans-serif;" onclick="closeModal()">إغلاق</button>
+      <button class="btn-cyan" style="flex:1;padding:12px;font-size:1rem;" onclick="orderService()">اطلب الخدمة الآن</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  Pi.init({ version: "2.0", sandbox: true });
+  let currentService = null;
+  let activeCat = 'all';
+
+  const services = [
+    {id:1,emoji:"🎨",cat:"تصميم",title:"تصميم شعار احترافي بـ 3 مقترحات",seller:"DesignPro",sellerEmoji:"👨‍🎨",level:"بائع مميز",rating:4.9,reviews:342,packages:[{name:"أساسي",price:2,days:"3 أيام"},{name:"قياسي",price:5,days:"2 يوم"},{name:"مميز",price:10,days:"24 ساعة"}],desc:"تصميم شعار احترافي يعكس هوية علامتك التجارية، مع 3 مقترحات مختلفة وتعديلات غير محدودة."},
+    {id:2,emoji:"💻",cat:"برمجة",title:"تطوير تطبيق Pi SDK متكامل",seller:"PiDev",sellerEmoji:"👨‍💻",level:"بائع محترف",rating:5.0,reviews:89,packages:[{name:"بسيط",price:10,days:"7 أيام"},{name:"متوسط",price:25,days:"14 يوم"},{name:"متقدم",price:50,days:"30 يوم"}],desc:"تطوير تطبيق ويب متكامل مع Pi SDK، يشمل تسجيل الدخول والمدفوعات وواجهة مستخدم احترافية."},
+    {id:3,emoji:"✍️",cat:"كتابة",title:"كتابة 5 مقالات SEO عن Pi",seller:"ContentPi",sellerEmoji:"✍️",level:"بائع جديد",rating:4.7,reviews:56,packages:[{name:"3 مقالات",price:3,days:"5 أيام"},{name:"5 مقالات",price:5,days:"7 أيام"},{name:"10 مقالات",price:9,days:"14 يوم"}],desc:"كتابة مقالات احترافية محسّنة لمحركات البحث حول عالم Pi والعملات الرقمية."},
+    {id:4,emoji:"📣",cat:"تسويق",title:"إدارة حملة تسويقية على Pi Network",seller:"MarketPi",sellerEmoji:"📊",level:"بائع مميز",rating:4.8,reviews:124,packages:[{name:"أسبوع",price:8,days:"7 أيام"},{name:"شهر",price:25,days:"30 يوم"},{name:"3 أشهر",price:60,days:"90 يوم"}],desc:"إدارة كاملة لحملتك التسويقية داخل مجتمع Pi، تشمل المحتوى والإعلانات وتحليل النتائج."},
+    {id:5,emoji:"🎬",cat:"فيديو",title:"مونتاج فيديو احترافي لتطبيق Pi",seller:"VideoPi",sellerEmoji:"🎬",level:"بائع محترف",rating:4.6,reviews:78,packages:[{name:"60 ثانية",price:5,days:"3 أيام"},{name:"3 دقائق",price:12,days:"5 أيام"},{name:"5 دقائق",price:20,days:"7 أيام"}],desc:"مونتاج احترافي لفيديو تعريفي بتطبيقك، مع موسيقى وتأثيرات بصرية جذابة."},
+    {id:6,emoji:"🌍",cat:"كتابة",title:"ترجمة محتوى تقني عربي/إنجليزي",seller:"TranslatePi",sellerEmoji:"🌍",level:"بائع مميز",rating:4.9,reviews:203,packages:[{name:"500 كلمة",price:2,days:"24 ساعة"},{name:"2000 كلمة",price:6,days:"2 يوم"},{name:"5000 كلمة",price:12,days:"4 أيام"}],desc:"ترجمة دقيقة للمحتوى التقني المتعلق بـ Pi والبلوكتشين بين العربية والإنجليزية."},
+  ];
+
+  function renderServices(list) {
+    document.getElementById('servicesGrid').innerHTML = list.map(s => `
+      <div class="service-card" onclick="openService(${s.id})">
+        <div class="service-thumb">
+          ${s.emoji}
+          <span class="service-level">${s.level}</span>
+        </div>
+        <div class="service-body">
+          <div class="service-title">${s.title}</div>
+          <div class="seller-row">
+            <div class="seller-avatar">${s.sellerEmoji}</div>
+            <span class="seller-name">${s.seller}</span>
+            <span class="seller-level">${s.level}</span>
+          </div>
+          <div class="service-rating">${'★'.repeat(Math.round(s.rating))} ${s.rating} (${s.reviews})</div>
+          <div class="service-price">
+            <div><div class="price-from">يبدأ من</div><div class="price-val">${s.packages[0].price} π</div></div>
+            <button class="order-btn" onclick="event.stopPropagation();quickOrder(${s.id})">اطلب الآن</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function filterCat(cat) {
+    activeCat = cat;
+    applyFilters();
+  }
+
+  function filterServices() { applyFilters(); }
+
+  function applyFilters() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const cat = document.getElementById('catSelect').value;
+    const list = services.filter(s =>
+      (activeCat === 'all' || s.cat === activeCat) &&
+      (cat === 'all' || s.cat === cat) &&
+      (s.title.toLowerCase().includes(q) || s.cat.toLowerCase().includes(q))
+    );
+    renderServices(list);
+  }
+
+  function openService(id) {
+    currentService = services.find(s => s.id === id);
+    document.getElementById('modalIcon').textContent = currentService.emoji;
+    document.getElementById('modalTitle').textContent = currentService.title;
+    document.getElementById('modalSeller').innerHTML = `<div style="width:32px;height:32px;border-radius:50%;background:var(--pi-purple);display:flex;align-items:center;justify-content:center;">${currentService.sellerEmoji}</div><span style="font-weight:700;">${currentService.seller}</span><span style="color:var(--pi-gold);font-size:.82rem;">⭐ ${currentService.rating}</span>`;
+    document.getElementById('modalDesc').textContent = currentService.desc;
+    document.getElementById('modalPackages').innerHTML = currentService.packages.map(p => `
+      <div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;cursor:pointer;" onclick="selectPackage(this,${p.price})">
+        <div style="font-weight:700;font-size:.85rem;">${p.name}</div>
+        <div style="color:var(--pi-gold);font-weight:900;font-size:1.1rem;">${p.price} π</div>
+        <div style="color:var(--muted);font-size:.75rem;">${p.days}</div>
+      </div>
+    `).join('');
+    document.getElementById('serviceModal').classList.add('open');
+  }
+
+  let selectedPackagePrice = null;
+  function selectPackage(el, price) {
+    document.querySelectorAll('#modalPackages > div').forEach(e => e.style.borderColor = 'var(--border)');
+    el.style.borderColor = 'var(--pi-cyan)';
+    selectedPackagePrice = price;
+  }
+
+  function closeModal() { document.getElementById('serviceModal').classList.remove('open'); }
+
+  function orderService() {
+    if (!currentService) return;
+    const price = selectedPackagePrice || currentService.packages[0].price;
+    Pi.createPayment({
+      amount: price,
+      memo: `Falcon Exchange: ${currentService.title}`,
+      metadata: { serviceId: currentService.id }
+    }, {
+      onReadyForServerApproval: () => { showToast('✓ جاري معالجة الطلب...'); closeModal(); },
+      onReadyForServerCompletion: () => showToast('🎉 تم تأكيد الطلب! سيتواصل معك البائع قريباً.'),
+      onCancel: () => showToast('❌ تم إلغاء الطلب'),
+      onError: (e) => showToast('⚠️ ' + e.message)
+    });
+  }
+
+  function quickOrder(id) { currentService = services.find(s => s.id === id); orderService(); }
+
+  function publishService() {
+    const title = document.getElementById('sTitle').value;
+    if (!title) { showToast('⚠️ يرجى إدخال عنوان الخدمة'); return; }
+    showToast('🎉 تم نشر خدمتك بنجاح!');
+    document.getElementById('sTitle').value = '';
+    document.getElementById('sDesc').value = '';
+    switchTab('browse', null);
+  }
+
+  function switchTab(tab, el) {
+    ['browse','sell','orders'].forEach(t => {
+      document.getElementById(t+'Tab').style.display = 'none';
+    });
+    document.getElementById(tab+'Tab').style.display = 'block';
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    if (el) el.classList.add('active');
+  }
+
+  function loginWithPi() {
+    Pi.authenticate(['username','payments'], (auth) => {
+      showToast('✓ مرحباً ' + auth.user.username);
+    }, (err) => showToast('⚠️ ' + err));
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 3000);
+  }
+
+  renderServices(services);
+</script>
+</body>
+</html>
